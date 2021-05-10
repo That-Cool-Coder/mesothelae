@@ -1,0 +1,14 @@
+from enum import Enum
+
+@unique
+class StatusCode(enum):
+    OK = 'OK'
+
+    # Warnings
+    INVALID_REQUEST = 'INVALID_REQUEST'
+    INVALID_CREDENTIALS = 'INVALID_CREDENTIALS'
+
+    # Errors:
+    UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+    DATABASE_READ_ERROR = 'DATABASE_READ_ERROR'
+    DATABASE_CORRUPTED = 'DATABASE_CORRUPTED'
