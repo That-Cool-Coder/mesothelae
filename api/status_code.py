@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import Enum, unique
 
 @unique
-class StatusCode(enum):
+class StatusCode(Enum):
     OK = 'OK'
 
     # Warnings

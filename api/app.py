@@ -1,7 +1,7 @@
 import json
 import os.path
 
-from flask import Flask, jsonify, request
+from flask import *
 app = Flask(__name__)
 
 from api import pythondb, Status, StatusCode
@@ -16,6 +16,10 @@ def create_response(status, status_code, **kwargs):
         'statusCode' : status_code,
         **kwargs
     })
+
+@app.route('/testserver/')
+def test_server():
+    return 'Successfully running app.py'
 
 @app.route('/api/login', methods=['POST'])
 def login():

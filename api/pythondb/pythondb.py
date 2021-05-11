@@ -2,8 +2,8 @@ import json
 import re
 import copy
 
-import pythondb.errors as errors
-import pythondb.simpleFileManager as files
+from . import errors
+from . import simpleFileManager as files
 
 def createDatabase(name, uniqueFields=[], nonUniqueFields=[], rows=[]):
     # (public)

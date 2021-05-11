@@ -16,10 +16,10 @@ Step 2: Install some things for WSGI:
 sudo apt-get install libapache2-mod-wsgi-py3 python-dev
 ```
 
-Step 3: Install python packages:
+Step 3: Install python packages (make sure you use sudo, or else they won't be installed globally):
 ```
-pip3 install Flask
-pip3 install argon2-cffi
+sudo -H pip3 install Flask
+sudo -H pip3 install argon2-cffi
 ```
 
 Step 3: Go into where your site's configuration file is (probably `/etc/apache2/sites-available/000-default-le-ssl.conf`) and add this line to inside the top `VirtualHost` block:
