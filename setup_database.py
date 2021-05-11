@@ -1,4 +1,4 @@
-import pythondb
+import api.pythondb as pythondb
 
 from api.config import *
 

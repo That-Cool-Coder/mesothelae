@@ -24,10 +24,10 @@ sudo -H pip3 install argon2-cffi
 
 Step 3: Go into where your site's configuration file is (probably `/etc/apache2/sites-available/000-default-le-ssl.conf`) and add this line to inside the top `VirtualHost` block:
 ```
-WSGIScriptAlias /mesothelae /to/public/directory/mesothelae/mesothelae.wsgi
+WSGIScriptAlias /mesothelae/api /to/public/directory/mesothelae/mesothelae.wsgi
 ```
 
-Step 4: Create a directory `/var/wpd/mesothelae` if it doesn't exist and set its permissions to octal `0777`. Then go to the folder of the repo and run `/setup_database.py`.
+Step 4: Create a directory `/var/wpd/mesothelae/` if it doesn't exist and set its permissions to octal `0777`. Then go to the folder of the repo and run `/setup_database.py`.
 
 Step 5: Restart apache2 - something like `sudo systemctl restart apache2`
 
