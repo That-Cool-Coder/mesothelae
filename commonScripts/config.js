@@ -1,3 +1,4 @@
 const urls = {
-    signUp : '/mesothelae/api/signup/'
+    signUp : '/mesothelae/api/signup/',
+    signIn : '/mesothelae/api/signin/'
 }

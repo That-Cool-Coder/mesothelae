@@ -10,16 +10,23 @@ if not want_to_proceed:
 
 message_database = pythondb.createDatabase(MESSAGE_DATABASE_NAME, [],
     ['senderUsername', 'content', 'timestamp'])
-pythondb.saveDatabase(message_database, MESSAGE_DATABASE_FILE_NAME)
+pythondb.saveDatabase(message_database, MESSAGE_DATABASE_FILENAME)
 
 user_database = pythondb.createDatabase(USER_DATABASE_NAME,
     ['username'], # Username must be unique
-    ['displayName', 'joinTimestamp', 'passwordHash']) # These don't have to be unique
+
+    ['displayName', 'joinTimestamp',
+    'passwordHash']) # These don't have to be unique
+
 admin_user = pythondb.createRow(user_database, {
     'username' : 'ADMIN',
     'displayName' : 'ADMIN',
     'joinTimestamp' : 0,
-    'passwordHash' : 'enter a password hash here'
+    'passwordHash' : '$argon2id$v=19$m=102400,t=2,p=8$whrMCH30ZrZYwXHLxdCKqQ$YHB8rnw3DoBHNPJdk7HdAQ'
 })
 pythondb.appendRow(user_database, admin_user)
-pythondb.saveDatabase(user_database, USER_DATABASE_FILE_NAME)
+pythondb.saveDatabase(user_database, USER_DATABASE_FILENAME)
+
+session_id_database = pythondb.createDatabase(SESSION_ID_DATABASE_NAME,
+    ['id'], ['username', 'expiryTime'])
+pythondb.saveDatabase(session_id_database, SESSION_ID_DATABASE_FILENAME)

@@ -4,6 +4,9 @@ A chat program using flask backend and basic html frontend
 
 The documentation isn't hugely organised yet so just scroll down until you find the heading you want
 
+For testing the password to account `ADMIN` is `getSmartNow`.
+Please change this and remove this paragraph when account testing is no longer needed.
+
 ## Setup
 (only for linux server with apache2 - windows is too hard)
 
@@ -27,13 +30,13 @@ Step 3: Go into where your site's configuration file is (probably `/etc/apache2/
 WSGIScriptAlias /mesothelae/api /to/public/directory/mesothelae/mesothelae.wsgi
 ```
 
-Step 4: Create a directory `/var/wpd/mesothelae/` if it doesn't exist and set its permissions to octal `0777`. Then go to the folder of the repo and run `/setup_database.py`.
+Step 4: Create a directory `/var/ww/wpd/mesothelae/` (to hold the databases) if it doesn't exist and set its permissions to octal `0777`. Then go to the folder of the repo and run `/setup_databases.py`.
 
 Step 5: Restart apache2 - something like `sudo systemctl restart apache2`
 
 ## Database structure
 
-The databases are made with `pythondb`, a library that I coded. To see the structure, look in `api/setup_database.py`.
+The databases are made with `pythondb`, a library that I coded. To see the structure, look in `api/setup_databases.py`.
 
 ## Response format
 
