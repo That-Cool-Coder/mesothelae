@@ -19,6 +19,16 @@ def create_response(status, status_code, **kwargs):
         **kwargs
     })
 
+def request_fields_valid(required_fields=[], request_json=None):
+    '''
+    Return a bool that states whether all of required_fields
+    are in request_json
+    '''
+    if request_json is None:
+        request_json = request.json
+
+    return all(key in request_json for key in required_fields)
+
 @app.route('/test-server/')
 def test_server():
     return 'Successfully running app.py'
@@ -34,8 +44,7 @@ def sign_in():
     '''
 
     # Make sure the request is valid
-    if 'username' not in request.json or \
-        'password' not in request.json:
+    if not request_fields_valid(['username', 'password']):
         return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
 
     try:
@@ -88,8 +97,7 @@ def sign_up():
     '''
 
     # Make sure the request is valid
-    if 'username' not in request.json or \
-        'password' not in request.json:
+    if not request_fields_valid(['username', 'password']):
         return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
     
     if 'displayName' not in request.json:
@@ -132,8 +140,7 @@ def send_message():
     '''
 
     try:
-        if 'sessionId' not in request.json or \
-            'content' not in request.json:
+        if not request_fields_valid(['content', 'sessionId']):
             return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
 
         session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
@@ -144,6 +151,7 @@ def send_message():
         if session_id is None:
             return create_response(Status.WARNING,
                 StatusCode.INVALID_SESSION_ID)
+
         # Make sure the id is not expired
         elif session_id['expiryTime'] < time.time():
             return create_response(Status.WARNING,
@@ -161,6 +169,54 @@ def send_message():
         pythondb.saveDatabase(message_db, MESSAGE_DATABASE_FILENAME)
 
         return create_response(Status.OK, StatusCode.OK)
+
+    except (FileNotFoundError, PermissionError):
+        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
+    except pythondb.errors.FileCorrupted:
+        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
+    except:
+        return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
+
+@app.route('/getmessages/', methods=['POST'])
+def get_messages():
+    '''
+    Expects a json request like so:
+    {
+        sessionId : 'some string', (a valid one gotten fron /signin/)
+        amount : 123 (optional; defaults to -1; -1 means all)
+    }
+
+    as well as status and code, returns this json:
+    {
+        messages = [<message object, see setup_databases.py>]
+    }
+    '''
+    try:
+        if not request_fields_valid(['sessionId']):
+            return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
+
+        session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
+        session_id = pythondb.getRowByUniqueField(session_id_db,
+            'id', request.json['sessionId'])
+
+        # Make sure the id exists
+        if session_id is None:
+            return create_response(Status.WARNING,
+                StatusCode.INVALID_SESSION_ID)
+                
+        # Make sure the id is not expired
+        elif session_id['expiryTime'] < time.time():
+            return create_response(Status.WARNING,
+                StatusCode.INVALID_SESSION_ID)
+        
+        # Only bother opening the message database if session id is valid
+        message_db = pythondb.openDatabase(MESSAGE_DATABASE_FILENAME)
+        amount = request.json.get('amount', 0)
+
+        # Get messages from length - amount to end
+        messages = message_db['rows'][-amount:]
+
+        return create_response(Status.OK, StatusCode.OK, messages=messages)
 
     except (FileNotFoundError, PermissionError):
         return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)

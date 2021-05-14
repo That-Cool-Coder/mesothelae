@@ -1,13 +1,12 @@
-async function signIn() {
+function signIn() {
     // Send a request to the api trying to sign in
-    // planned: save a session id
+    // then save the session id returned from the server
     // planned: and then go to a home page or something
 
     // First, read the inputs and save the values
     var username = wrk.dom.id('usernameInput').value;
     var password = wrk.dom.id('passwordInput').value;
 
-    // If there haven't been any issues, organise data and create request
     const requestData = {
         username : username,
         password : password
@@ -27,6 +26,15 @@ async function signIn() {
     })
     .then(response => response.json())
     .then(json => {
-        console.log(json)
+        if (json.status == 'OK') {
+            localStorage.setItem(sessionIdKey, json.sessionId);
+            window.location = '/mesothelae/'
+        }
+        else if (json.status == 'WARNING') {
+            alert('Wrong username/password');
+        }
+        else {
+            alert('Error!');
+        }
     });
 }
