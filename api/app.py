@@ -2,15 +2,27 @@ import json
 import os.path
 import time
 import uuid
+import atexit
 
 from flask import *
 app = Flask(__name__)
 
-from api import pythondb, Status, StatusCode, status
+from api import pythondb, Status, StatusCode
 from api.config import *
 
 import argon2
 hasher = argon2.PasswordHasher()
+
+user_db = pythondb.openDatabase(USER_DATABASE_FILENAME)
+session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
+message_db = pythondb.openDatabase(MESSAGE_DATABASE_FILENAME)
+
+def save_databases():
+    pythondb.saveDatabase(user_db, USER_DATABASE_FILENAME)
+    pythondb.saveDatabase(session_id_db, SESSION_ID_DATABASE_FILENAME)
+    pythondb.saveDatabase(message_db, MESSAGE_DATABASE_FILENAME)
+
+atexit.register(save_databases)
 
 def create_response(status, status_code, **kwargs):
     return jsonify({
@@ -23,6 +35,7 @@ def request_fields_valid(required_fields=[], request_json=None):
     '''
     Return a bool that states whether all of required_fields
     are in request_json
+    If request_json is not specified then it defaults to flask's request.json
     '''
     if request_json is None:
         request_json = request.json
@@ -49,8 +62,8 @@ def sign_in():
 
     try:
         # Try and find the user that matches username
-        user_db = pythondb.openDatabase(USER_DATABASE_FILENAME)
-        user = pythondb.getRowByUniqueField(user_db, 'username', request.json['username'])
+        user = pythondb.getRowByUniqueField(user_db,
+            'username', request.json['username'])
         if user is None:
             return create_response(Status.WARNING, StatusCode.INVALID_CREDENTIALS)
         
@@ -64,8 +77,6 @@ def sign_in():
         if not password_valid:
             return create_response(Status.WARNING, StatusCode.INVALID_CREDENTIALS)
         else:
-            session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
-
             new_session_id = str(uuid.uuid4())
             new_db_row = pythondb.createRow(session_id_db, {
                 'id' : new_session_id,
@@ -73,7 +84,6 @@ def sign_in():
                 'expiryTime' : time.time() + SESSION_ID_TIMEOUT
             })
             pythondb.appendRow(session_id_db, new_db_row)
-            pythondb.saveDatabase(session_id_db, SESSION_ID_DATABASE_FILENAME)
 
             return create_response(Status.OK, StatusCode.OK,
                 sessionId=new_session_id)
@@ -100,12 +110,11 @@ def sign_up():
     if not request_fields_valid(['username', 'password']):
         return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
     
+    # Fix optional parameter
     if 'displayName' not in request.json:
         request.json['displayName'] = request.json['username']
 
     try:
-        user_db = pythondb.openDatabase(USER_DATABASE_FILENAME)
-
         password_hash = hasher.hash(request.json['password'])
         new_user = pythondb.createRow(user_db, {
             'username' : request.json['username'],
@@ -114,7 +123,6 @@ def sign_up():
             'passwordHash' : password_hash
         })
         pythondb.appendRow(user_db, new_user)
-        pythondb.saveDatabase(user_db, USER_DATABASE_FILENAME)
 
         return create_response(Status.OK, StatusCode.OK)
         
@@ -143,30 +151,24 @@ def send_message():
         if not request_fields_valid(['content', 'sessionId']):
             return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
 
-        session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
         session_id = pythondb.getRowByUniqueField(session_id_db,
             'id', request.json['sessionId'])
 
-        # Make sure the id exists
+        # Make sure that the id is actually valid
         if session_id is None:
             return create_response(Status.WARNING,
                 StatusCode.INVALID_SESSION_ID)
-
         # Make sure the id is not expired
         elif session_id['expiryTime'] < time.time():
             return create_response(Status.WARNING,
                 StatusCode.INVALID_SESSION_ID)
             
-        # Open the message database only if the sid is valid,
-        # improving strength against DDOS
-        message_db = pythondb.openDatabase(MESSAGE_DATABASE_FILENAME)
         new_message = pythondb.createRow(message_db, {
             'senderUsername' : session_id['username'],
             'content' : request.json['content'],
             'timestamp' : time.time()
         })
         pythondb.appendRow(message_db, new_message)
-        pythondb.saveDatabase(message_db, MESSAGE_DATABASE_FILENAME)
 
         return create_response(Status.OK, StatusCode.OK)
 
@@ -195,7 +197,6 @@ def get_messages():
         if not request_fields_valid(['sessionId']):
             return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
 
-        session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
         session_id = pythondb.getRowByUniqueField(session_id_db,
             'id', request.json['sessionId'])
 
@@ -209,11 +210,8 @@ def get_messages():
             return create_response(Status.WARNING,
                 StatusCode.INVALID_SESSION_ID)
         
-        # Only bother opening the message database if session id is valid
-        message_db = pythondb.openDatabase(MESSAGE_DATABASE_FILENAME)
-        amount = request.json.get('amount', 0)
-
         # Get messages from length - amount to end
+        amount = request.json.get('amount', 0)
         messages = message_db['rows'][-amount:]
 
         return create_response(Status.OK, StatusCode.OK, messages=messages)

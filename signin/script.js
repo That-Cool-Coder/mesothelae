@@ -12,7 +12,7 @@ function signIn() {
         password : password
     };
 
-    fetch(urls.signIn, {
+    fetch(urls.api.signIn, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
@@ -28,7 +28,7 @@ function signIn() {
     .then(json => {
         if (json.status == 'OK') {
             localStorage.setItem(sessionIdKey, json.sessionId);
-            window.location = '/mesothelae/'
+            window.location = urls.frontEnd.home;
         }
         else if (json.status == 'WARNING') {
             alert('Wrong username/password');

@@ -66,9 +66,9 @@ function getMessages() {
         if (json.status == 'OK') {
             displayMessages(json.messages);
         }
-        else {
+        else if (json.status == 'WARNING') {
             alert('Something went wrong! Sign in maybe?');
-            window.location = '/mesothelae/';
+            window.location = urls.frontEnd.home;
         }
     })
 }
@@ -86,7 +86,7 @@ function displayMessages(messages) {
 // Make sure person is signed in
 if (localStorage.getItem(sessionIdKey) == null) {
     alert('You must sign in to talk in chat');
-    window.location = '/mesothelae/';
+    window.location = urls.frontEnd.signIn;
 }
 // Only setup message getter if person is signed in
 else {
