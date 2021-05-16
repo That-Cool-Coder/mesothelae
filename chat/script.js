@@ -67,8 +67,11 @@ function getMessages() {
             displayMessages(json.messages);
         }
         else if (json.status == 'WARNING') {
-            alert('Something went wrong! Sign in maybe?');
+            alert('You are not signed in');
             window.location = urls.frontEnd.home;
+        }
+        else {
+            alert('Error!');
         }
     })
 }

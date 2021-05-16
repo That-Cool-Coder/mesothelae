@@ -9,4 +9,4 @@ import os, sys
 PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, PROJECT_DIR)
 
-from api import app as application
+from api.app import app as application

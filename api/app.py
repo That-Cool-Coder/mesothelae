@@ -7,22 +7,25 @@ import atexit
 from flask import *
 app = Flask(__name__)
 
-from api import pythondb, Status, StatusCode
-from api.config import *
-
 import argon2
 hasher = argon2.PasswordHasher()
+
+from api import pythondb, Status, StatusCode
+from api.config import *
 
 user_db = pythondb.openDatabase(USER_DATABASE_FILENAME)
 session_id_db = pythondb.openDatabase(SESSION_ID_DATABASE_FILENAME)
 message_db = pythondb.openDatabase(MESSAGE_DATABASE_FILENAME)
 
+@atexit.register
 def save_databases():
     pythondb.saveDatabase(user_db, USER_DATABASE_FILENAME)
     pythondb.saveDatabase(session_id_db, SESSION_ID_DATABASE_FILENAME)
     pythondb.saveDatabase(message_db, MESSAGE_DATABASE_FILENAME)
 
-atexit.register(save_databases)
+    file = open('/home/thatcoolcoder/coding/mesothelae/test.txt', 'w')
+    file.write('closing!')
+    file.close()
 
 def create_response(status, status_code, **kwargs):
     return jsonify({
@@ -94,6 +97,27 @@ def sign_in():
     except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
 
+@app.route('/signout', methods=['POST'])
+def sign_out():
+    '''
+    Expects a json request like so:
+    {username : 'some string',
+    password : 'some string',
+    displayName : 'some string' (optional, reverts to username)}
+
+    Returns no json except for status and code
+    '''
+
+    try:
+        ''''''
+    
+    except (FileNotFoundError, PermissionError):
+        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
+    except pythondb.errors.FileCorrupted:
+        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
+    except Exception as e:
+        import traceback
+        return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
 
 @app.route('/signup/', methods=['POST'])
 def sign_up():
@@ -222,7 +246,6 @@ def get_messages():
         return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
     except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
-
 
 if __name__ == '__main__':
     app.run()

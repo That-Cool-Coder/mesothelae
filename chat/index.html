@@ -6,17 +6,22 @@
     </head>
 
     <body>
-        <h1>Mesothelae</h1>
 
-        <a href="/mesothelae/">Homepage</a>
-        <br>
-        <br>
+        <div id="aboveMessageHolder">
+            <h1>Mesothelae</h1>
+
+            <a href="/mesothelae/">Homepage</a>
+            <br>
+            <br>
+        </div>
 
         <div id="messageHolder"></div>
 
-        <textarea id="messageInput" placeholder="Type message"></textarea>
-        <br>
-        <button onclick="sendMessage()">Send</button>
+        <div id="belowMessageHolder">
+            <textarea id="messageInput" placeholder="Type message"></textarea>
+            <br>
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </body>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
