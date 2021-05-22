@@ -13,5 +13,6 @@ class InvalidFieldPath(Exception):
 class FieldDuplicated(Exception):
     pass
 
+# Not actually used
 class DatabaseObjectCorrupted(Exception):
     pass

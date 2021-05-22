@@ -29,7 +29,7 @@ async function signUp() {
         password : password
     };
 
-    fetch(urls.signUp, {
+    fetch(urls.api.signUp, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
@@ -43,6 +43,38 @@ async function signUp() {
     })
     .then(response => response.json())
     .then(json => {
-        console.log(json)
+        if (json.status == 'OK') {
+            var requestData = {
+                username : username,
+                password : password
+            }
+            fetch(urls.api.signIn, {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(json => {
+                if (json.status == 'OK') {
+                    localStorage.setItem(sessionIdKey, json.sessionId);
+                    window.location = urls.frontEnd.home;
+                }
+                else if (json.status == 'WARNING') {
+                    alert('Failure to login after creating account,\n' + json.statusCode);
+                }
+                handleErrors(json);
+            })
+        }
+        else if (json.status == 'WARNING') {
+            alert('You aren\'t allowed to have these login details,\n' + json.statusCode);
+        }
+        handleErrors(json);
     });
 }

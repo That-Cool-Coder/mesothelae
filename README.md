@@ -55,7 +55,7 @@ OK
 WARNING
 ERROR
 ```
-The 'master copy' is stored in an enum `api/status.py`, so if this documentation is wrong, just look there. Statuses should be `WITH_CAPS_AND_UNDERSCORES`.
+The 'master copy' is stored in an enum `api/status.py`, so if this documentation is wrong, just look there. Statuses should be `WITH_CAPS_AND_UNDERSCORES`. There's also a mirror in `commonScripts/Status.js`. If the two disagree, update the JS to match the Python.
 
 ###### OK
 This is fairly obvious: everything is totally ok. For instance, the user tried logging in and their details were correct. Another example is if they send a chat message and it gets added to the room just fine.
@@ -67,5 +67,4 @@ This is for when the **client side** has done something wrong. For instance, whe
 This is for when something unexpected happened on the **server side**. For instance, the user that was just looked up doesn't exist, or the database can't be accessed, or some other major problem. When this occurs, the client side should show an intrusive pop up that states the `statusCode` (see below) so that it can be reported
 
 #### Status codes
-
-There are a bunch of status codes and you can find them in `api/status_code.py`. Statuse codes should be `WITH_CAPS_AND_UNDERSCORES`. Basically, they state some details about the status - eg `invalidPassword` or `userDatabaseCorrupted`. If the status is `ok`, then the status code is `ok`. if possible, don't write warning/error in the code, as it's probably redundant. In some errors it's handy, however. Just make things readable.
+There are a bunch of status codes and you can find them in `api/status_code.py`. Statuse codes should be `WITH_CAPS_AND_UNDERSCORES`. Basically, they state some details about the status - eg `INVALID_PASSWORD` or `DATABASE_CORRUPTED`. If the status is `OK`, then the status code is `OK`. if possible, don't write warning/error in the code, as it's probably redundant. In some errors it's handy, however. Just make things readable. There's also a mirror in `commonScripts/StatusCode.js`. If the two disagree, update the JS to match the Python.

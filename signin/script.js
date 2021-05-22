@@ -31,10 +31,8 @@ function signIn() {
             window.location = urls.frontEnd.home;
         }
         else if (json.status == 'WARNING') {
-            alert('Wrong username/password');
+            alert('Wrong username/password,\n' + json.statusCode);
         }
-        else {
-            alert('Error!');
-        }
+        handleErrors(json);
     });
 }

@@ -3,13 +3,15 @@ const urls = {
         home : '/mesothelae',
         signUp: '/mesothelae/signup',
         signIn : '/mesothelae/signin',
-        chat : '/mesothelae/chat',
+        signOut : '/mesothelae/signOut',
+        chat : '/mesothelae/chat'
     },
     api : {
-        signUp : '/mesothelae/api/signup/',
-        signIn : '/mesothelae/api/signin/',
-        sendMessage : '/mesothelae/api/sendmessage/',
-        getMessages : '/mesothelae/api/getmessages/'
+        signUp : '/mesothelae/api/signup',
+        signIn : '/mesothelae/api/signin',
+        signOut : '/mesothelae/api/signout',
+        sendMessage : '/mesothelae/api/sendmessage',
+        getMessages : '/mesothelae/api/getmessages'
     }
 }
 

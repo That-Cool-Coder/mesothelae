@@ -23,10 +23,6 @@ def save_databases():
     pythondb.saveDatabase(session_id_db, SESSION_ID_DATABASE_FILENAME)
     pythondb.saveDatabase(message_db, MESSAGE_DATABASE_FILENAME)
 
-    file = open('/home/thatcoolcoder/coding/mesothelae/test.txt', 'w')
-    file.write('closing!')
-    file.close()
-
 def create_response(status, status_code, **kwargs):
     return jsonify({
         'status' : status.value,
@@ -90,33 +86,35 @@ def sign_in():
 
             return create_response(Status.OK, StatusCode.OK,
                 sessionId=new_session_id)
-    except (FileNotFoundError, PermissionError):
-        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
-    except pythondb.errors.FileCorrupted:
-        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
     except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
 
-@app.route('/signout', methods=['POST'])
+@app.route('/signout/', methods=['POST'])
 def sign_out():
     '''
     Expects a json request like so:
-    {username : 'some string',
-    password : 'some string',
-    displayName : 'some string' (optional, reverts to username)}
+    {sessionId : 'some string'}
+
+    Basically, it just finds that session id and tries to delete it
 
     Returns no json except for status and code
     '''
 
     try:
-        ''''''
-    
-    except (FileNotFoundError, PermissionError):
-        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
-    except pythondb.errors.FileCorrupted:
-        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
-    except Exception as e:
-        import traceback
+        # Make sure the request is valid
+        if not request_fields_valid(['sessionId']):
+            return create_response(Status.WARNING, StatusCode.INVALID_REQUEST)
+
+        session_id = pythondb.getRowByUniqueField(session_id_db,
+            'id', request.json['sessionId'])
+
+        if session_id is None:
+            return create_response(Status.WARNING, StatusCode.INVALID_SESSION_ID)
+        else:
+            pythondb.removeRow(session_id_db, session_id)
+            return create_response(Status.OK, StatusCode.OK)
+
+    except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
 
 @app.route('/signup/', methods=['POST'])
@@ -152,10 +150,6 @@ def sign_up():
         
     except pythondb.errors.FieldDuplicated:
         return create_response(Status.WARNING, StatusCode.USERNAME_NOT_UNIQUE)
-    except (FileNotFoundError, PermissionError):
-        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
-    except pythondb.errors.FileCorrupted:
-        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
     except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
         
@@ -195,11 +189,6 @@ def send_message():
         pythondb.appendRow(message_db, new_message)
 
         return create_response(Status.OK, StatusCode.OK)
-
-    except (FileNotFoundError, PermissionError):
-        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
-    except pythondb.errors.FileCorrupted:
-        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
     except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
 
@@ -239,11 +228,6 @@ def get_messages():
         messages = message_db['rows'][-amount:]
 
         return create_response(Status.OK, StatusCode.OK, messages=messages)
-
-    except (FileNotFoundError, PermissionError):
-        return create_response(Status.ERROR, StatusCode.DATABASE_READ_ERROR)
-    except pythondb.errors.FileCorrupted:
-        return create_response(Status.ERROR, StatusCode.DATABASE_CORRUPTED)
     except:
         return create_response(Status.ERROR, StatusCode.UNKNOWN_ERROR)
 

@@ -22,7 +22,7 @@ function sendMessage() {
         sessionId : localStorage.getItem(sessionIdKey)
     };
 
-    fetch(urls.sendMessage, {
+    fetch(urls.api.sendMessage, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
@@ -49,7 +49,7 @@ function getMessages() {
         sessionId : localStorage.getItem(sessionIdKey)
     };
 
-    fetch(urls.getMessages, {
+    fetch(urls.api.getMessages, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
@@ -67,12 +67,11 @@ function getMessages() {
             displayMessages(json.messages);
         }
         else if (json.status == 'WARNING') {
-            alert('You are not signed in');
+            alert('You are not signed in,\n' + json.statusCode);
             window.location = urls.frontEnd.home;
         }
-        else {
-            alert('Error!');
-        }
+
+        handleErrors(json);
     })
 }
 
