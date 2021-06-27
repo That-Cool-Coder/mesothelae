@@ -111,7 +111,7 @@ Fields:
 Fields:
 - `sender` - the username/id of the user who sent the message
 - `content` - a string that is the content of the message
-- `timestamp` - milliseconds since epich of when the message was sent (added to message list)
+- `timestamp` - milliseconds since epoch of when the message was sent (added to message list)
 
 ## Code architecture
 
