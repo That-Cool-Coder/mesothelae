@@ -1,70 +1,118 @@
 # mesothelae
 
-A chat program using flask backend and basic html frontend
+A chat program using Flask backend and some sort of html frontend
 
-The documentation isn't hugely organised yet so just scroll down until you find the heading you want
+## Contents of README
+- [Organisation of documentation](#organisation-of-documentation)
+- [Organisation of project](#organisation-of-project)
+- [Terms used in this project](#terms-used-in-this-project)
+- [Development timeline](#development-timeline)
+- [Planned features for initial release](#planned-features-for-initial-release)
+- [Planned future features](#planned-future-features)
+- [Data storage](#data-storage)
+- [Code architecture](#code-architecture)
 
-For testing the password to account `ADMIN` is `getSmartNow`.
-Please change this and remove this paragraph when account testing is no longer needed.
+## Organisation of documentation
 
-## Setup
-(only for linux server with apache2 - windows is too hard)
+Unlike my previous projects, which had countless documentation files, all of the documentation for developers will be kept in one file. This will hopefully keep the file system neater, avoid me spending hours pasting links to the files everywhere and probably be easier to navigate. Note that *user* documentation should be stored seperately, in a user-friendly format (i.e not markdown).
 
-Prerequisites: python >= 3.6, pip3
+## Organisation of project
 
-Step 1: Clone this repo into the public directory of the server
+Instead of using subfolders to organise the sections of the program (eg backend frontend etc), which gets messy and makes deployment annoying (why should the backend have to be put in the `/var/www/html` or whatever), the different sections are going to be organised by putting them in different git branches. Currently there are two branches:
+- `master` stores the editor documentation and the license
+- `prototype` stores an early tester used to gain familiarity with WSGI and probe different options for architecture.
 
-Step 2: Install some things for WSGI:
-```
-sudo apt-get install libapache2-mod-wsgi-py3 python-dev
-```
+Here are some possible planned branches:
+- `main` stores the Flask program and all of the HTML is serves (used if I decide to have Flask serving HTML as well as being a backend)
+- `backend` will store the Flask backend (used if backend and frontend are seperated)
+- `frontend` will store a HTML frontend (used if backend and frontend are seperated)
+- `python-frontend` will store a possible downloadable frontend written in python
 
-Step 3: Install python packages (make sure you use sudo, or else they won't be installed globally):
-```
-sudo -H pip3 install Flask
-sudo -H pip3 install argon2-cffi
-```
+## Terms used in this project
+- A 'user' is a person who has signed up. A user can also refer to the data structure representing the user
+- An 'account' is a username/password combination that users think they own.
+- A 'message' is a piece of text that one user has sent into a room.
+- A 'room' is a place where users can interact by sending messages. Rooms are created by users. Only those who have joined the room can view messages in it or send messages in it. To join a room, you must be invited by the owner.
+- The 'owner' of a room refers to the user who created it.
+- A 'member' of a room is a user who has been invited
+- A 'page' is a webpage in the frontend that users can navigate to.
 
-Step 3: Go into where your site's configuration file is (probably `/etc/apache2/sites-available/000-default-le-ssl.conf`) and add this line to inside the top `VirtualHost` block:
-```
-WSGIScriptAlias /mesothelae/api /to/public/directory/mesothelae/mesothelae.wsgi
-```
+## Development timeline
 
-Step 4: Create a directory `/var/ww/wpd/mesothelae/` (to hold the databases) if it doesn't exist and set its permissions to octal `0777`. Then go to the folder of the repo and run `/setup_databases.py`.
+In an effort to develop this project in a timely and organised manner, I've decided to create a development plan and timeline. These dates aren't fixed and can be moved back of forward if required.
+- 28 June - 4 July: Decide upon overall architecture. This includes deciding whether Flask will serve HTML or only act as a server, how/where to organise the data, how to organise the code, protocols of communication between server and client and what features will be present in initial deployment.
+- 5 July - 12 July: Organise the branches on GitHub and put folders etc in each. Set up testing environment, including WSGI stuff. Start writing documentation on how to set up project on a server. Create a small test server program and use it to test creating and using websockets. Write data storage and retrieval. Create helper functions for finding users, etc.
+- 13 July - 20 July: 
+- 
 
-Step 5: Restart apache2 - something like `sudo systemctl restart apache2`
+During this period, the documentation will also be continuously updated to reflect the latest changes and to change from 'will' to 'is'.
 
-## Database structure
+## Planned features for initial release
 
-The databases are made with `pythondb`, a library that I coded. To see the structure, look in `api/setup_databases.py`.
+- People can create an account and thus become a user
+- Accounts will have password security, a unique username and a display name
+- Users can change their display name and password
+- Users can delete their account
+- Users can create rooms
+- Room owners can configure their rooms - renaming room, deleting room, adding members
+- Users can send plain text messages in rooms that they are a member of
 
-## Response format
+## Planned future features
 
-Responses sent from the API always have a standard format. This is an example:
-```
-{"status":"WARNING","statusCode":"INVALID_PASSWORD"}
-```
+(In no particular order)
+- Users can search for rooms
+- Users can search for other users and view their profiles
+- Users can add a markdown bio to their profile
+- Users can send a request to join a room
+- Users can now remove themself from rooms
+- Users can be kicked from rooms by the owner
+- Users can select light-dark theme
+- Messages are now sent in markdown format, allowing formatting and code blocks
+- Users can select some basic preferences like shortcut to send
 
-The two fields `status` and `statusCode` will always be present, and other data like generated session id or whatever can be added (in the same nesting level as the status)
+## Data storage
 
-#### Statuses:
+The data will be stored in json format, using a custom module for saving and error handling. The data will be broken up into a number of files.
 
-There are three statuses:
-```
-OK
-WARNING
-ERROR
-```
-The 'master copy' is stored in an enum `api/status.py`, so if this documentation is wrong, just look there. Statuses should be `WITH_CAPS_AND_UNDERSCORES`. There's also a mirror in `commonScripts/Status.js`. If the two disagree, update the JS to match the Python.
+#### Data files
 
-###### OK
-This is fairly obvious: everything is totally ok. For instance, the user tried logging in and their details were correct. Another example is if they send a chat message and it gets added to the room just fine.
+`rooms.json` will hold a list of `Room` data structures
+`users.json` will hold a list of `User` data structures
+`sessionIds.json` will hold a list of `SessionId` data structures
 
-###### WARNING
-This is for when the **client side** has done something wrong. For instance, when the password is wrong or when the request format is incorect. In other words, when there's a problem but the API is not at fault. When this occurs, the client side should show the user the issue and maybe pop up a little text box.
+#### Data structures
 
-###### ERROR
-This is for when something unexpected happened on the **server side**. For instance, the user that was just looked up doesn't exist, or the database can't be accessed, or some other major problem. When this occurs, the client side should show an intrusive pop up that states the `statusCode` (see below) so that it can be reported
+###### User
 
-#### Status codes
-There are a bunch of status codes and you can find them in `api/status_code.py`. Statuse codes should be `WITH_CAPS_AND_UNDERSCORES`. Basically, they state some details about the status - eg `INVALID_PASSWORD` or `DATABASE_CORRUPTED`. If the status is `OK`, then the status code is `OK`. if possible, don't write warning/error in the code, as it's probably redundant. In some errors it's handy, however. Just make things readable. There's also a mirror in `commonScripts/StatusCode.js`. If the two disagree, update the JS to match the Python.
+I can't decide whether users should have a unique username or a unique id so I wrote both
+- `username` - a unique, unchangable string that the user sets on registering
+- `id` - a unique, unchangable integer set automatically on registering.
+- `display_name` - The name that the user is shown as to others. Can be changed and is not unique
+- `password_hash` - A hash of the user's password. Obviously not unique.
+
+###### SessionId
+
+Fields:
+- `username`/`user_id` - this refers to the `User` that the session id is for.
+- `value` - a bunch of random letters etc that make up the code. Should be unique.
+- `expires` - an integer that signifies the time of expiry of this id. In milliseconds since epoch.
+
+###### Room
+
+Fields:
+- `id` - a unique integer id created automatically on creation.
+- `name` - the name that is displayed to users. Can be changed and is not unique
+- `owner` - the username/id of the user who owns this room
+- `members` - a list of usernames/ids of users who are in the room. Is changed every time a user joins or leaves. Should include the username/id of the owner
+- `messages` - a list 
+
+###### Message
+
+Fields:
+- `sender` - the username/id of the user who sent the message
+- `content` - a string that is the content of the message
+- `timestamp` - milliseconds since epich of when the message was sent (added to message list)
+
+## Code architecture
+
+I haven't started writing code yet but I just wanted to prepare a heading.
