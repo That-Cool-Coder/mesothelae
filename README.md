@@ -9,6 +9,8 @@ A chat program using Flask backend and some sort of html frontend
 - [Development timeline](#development-timeline)
 - [Planned features for initial release](#planned-features-for-initial-release)
 - [Planned future features](#planned-future-features)
+- [Server/client communication protocols](#serverclient-communication-protocols)
+- [API endpoints](#api-endpoints)
 - [Data storage](#data-storage)
 - [Code architecture](#code-architecture)
 
@@ -23,7 +25,7 @@ Instead of using subfolders to organise the sections of the program (eg backend 
 - `prototype` stores an early tester used to gain familiarity with WSGI and probe different options for architecture.
 
 Here are some possible planned branches:
-- `main` stores the Flask program and all of the HTML is serves (used if I decide to have Flask serving HTML as well as being a backend)
+- `main` stores the Flask program and all of the HTML is serves (used if I decide to have Flask serving HTML as well as being a backend) (RENAME beause `main` is now the default branch name for github)
 - `backend` will store the Flask backend (used if backend and frontend are seperated)
 - `frontend` will store a HTML frontend (used if backend and frontend are seperated)
 - `python-frontend` will store a possible downloadable frontend written in python
@@ -41,8 +43,8 @@ Here are some possible planned branches:
 
 In an effort to develop this project in a timely and organised manner, I've decided to create a development plan and timeline. These dates aren't fixed and can be moved back of forward if required.
 - 28 June - 4 July: Decide upon overall architecture. This includes deciding whether Flask will serve HTML or only act as a server, how/where to organise the data, how to organise the code, protocols of communication between server and client and what features will be present in initial deployment.
-- 5 July - 12 July: Organise the branches on GitHub and put folders etc in each. Set up testing environment, including WSGI stuff. Start writing documentation on how to set up project on a server. Create a small test server program and use it to test creating and using websockets. Write data storage and retrieval. Create helper functions for finding users, etc.
-- 13 July - 20 July: 
+- 5 July - 12 July: Organise the branches on GitHub and put folders etc in each. Set up testing environment, including WSGI stuff. Start writing documentation on how to set up project on a server. Create a small test server program and use it to test creating and using websockets. Create backend helper functions data loading/retrieval, for finding users, etc.
+- 13 July - 20 July: Build API functions for initial release (see [Api endpoints](4api-endpoints))
 - 
 
 During this period, the documentation will also be continuously updated to reflect the latest changes and to change from 'will' to 'is'.
@@ -69,6 +71,28 @@ During this period, the documentation will also be continuously updated to refle
 - Users can select light-dark theme
 - Messages are now sent in markdown format, allowing formatting and code blocks
 - Users can select some basic preferences like shortcut to send
+
+## Server/client communication protocols
+
+All data in both directions will be sent in JSON format.
+
+## API endpoints
+
+As the program isn't written yet, these are the planned endpoints for the initial release. The url of the endpoints will be inside `/api/`. The fields in each In addition to the values stated under the subheadings, each of the endpoints also return two other a `status` and a `statuscode`, as stated in [Server/client communication protocols](#serverclient-communication-protocols).
+
+#### api/signup
+Create a new `User` object and save it in the database.
+
+Accepts:
+- `username` - a string that will be the `username` value of the `User` data structure (used only if users are decided to have names instead of ids)
+- `displayName`- a string that will be the `display_name` value of the `User`.
+- `password`
+
+Returns nothing.
+
+#### api/signin
+
+#### api/signout
 
 ## Data storage
 
@@ -104,7 +128,7 @@ Fields:
 - `name` - the name that is displayed to users. Can be changed and is not unique
 - `owner` - the username/id of the user who owns this room
 - `members` - a list of usernames/ids of users who are in the room. Is changed every time a user joins or leaves. Should include the username/id of the owner
-- `messages` - a list 
+- `messages` - a list of `Message` structures that have been sent
 
 ###### Message
 
