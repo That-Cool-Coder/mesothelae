@@ -6,13 +6,13 @@ A chat program using Flask backend and some sort of html frontend
 - [Organisation of documentation](#organisation-of-documentation)
 - [Organisation of project](#organisation-of-project)
 - [Terms used in this project](#terms-used-in-this-project)
+- [Program architecture](#program-architecture)
 - [Development timeline](#development-timeline)
 - [Planned features for initial release](#planned-features-for-initial-release)
 - [Planned future features](#planned-future-features)
 - [Server/client communication protocols](#serverclient-communication-protocols)
 - [API endpoints](#api-endpoints)
 - [Data storage](#data-storage)
-- [Code architecture](#code-architecture)
 
 ## Organisation of documentation
 
@@ -21,16 +21,15 @@ Unlike my previous projects, which had countless documentation files, all of the
 ## Organisation of project
 
 Instead of using subfolders to organise the sections of the program (eg backend frontend etc), which gets messy and makes deployment annoying (why should the backend have to be put in the `/var/www/html` or whatever), the different sections are going to be organised by putting them in different git branches. Currently there are two branches:
-- `master` stores the editor documentation and the license
+- `main` stores the editor documentation and the license
 - `prototype` stores an early tester used to gain familiarity with WSGI and probe different options for architecture.
 
 Here are some possible planned branches:
-- `main` stores the Flask program and all of the HTML is serves (used if I decide to have Flask serving HTML as well as being a backend) (RENAME beause `main` is now the default branch name for github)
-- `backend` will store the Flask backend (used if backend and frontend are seperated)
-- `frontend` will store a HTML frontend (used if backend and frontend are seperated)
+- `app` will be the main branch of the repo and will store the flask server
 - `python-frontend` will store a possible downloadable frontend written in python
 
 ## Terms used in this project
+
 - A 'user' is a person who has signed up. A user can also refer to the data structure representing the user
 - An 'account' is a username/password combination that users think they own.
 - A 'message' is a piece of text that one user has sent into a room.
@@ -38,6 +37,10 @@ Here are some possible planned branches:
 - The 'owner' of a room refers to the user who created it.
 - A 'member' of a room is a user who has been invited
 - A 'page' is a webpage in the frontend that users can navigate to.
+
+## Program architecture
+
+The program will be mainly written in Python using Flask. Both backend/API functions and serving of frontend will be done by a single Flask app.
 
 ## Development timeline
 
@@ -84,7 +87,7 @@ As the program isn't written yet, these are the planned endpoints for the initia
 Create a new `User` object and save it in the database.
 
 Accepts:
-- `username` - a string that will be the `username` value of the `User` data structure (used only if users are decided to have names instead of ids)
+- `username` - a string that will be the `username` value of the `User` data structure
 - `displayName`- a string that will be the `display_name` value of the `User`.
 - `password`
 
@@ -96,7 +99,7 @@ Returns nothing.
 
 ## Data storage
 
-The data will be stored in json format, using a custom module for saving and error handling. The data will be broken up into a number of files.
+The data will be stored in json format, using a custom module for loading, saving and error handling. The data will be broken up into a number of files.
 
 #### Data files
 
@@ -108,16 +111,15 @@ The data will be stored in json format, using a custom module for saving and err
 
 ###### User
 
-I can't decide whether users should have a unique username or a unique id so I wrote both
+Fields:
 - `username` - a unique, unchangable string that the user sets on registering
-- `id` - a unique, unchangable integer set automatically on registering.
 - `display_name` - The name that the user is shown as to others. Can be changed and is not unique
 - `password_hash` - A hash of the user's password. Obviously not unique.
 
 ###### SessionId
 
 Fields:
-- `username`/`user_id` - this refers to the `User` that the session id is for.
+- `username` - this refers to the `User` that the session id is for.
 - `value` - a bunch of random letters etc that make up the code. Should be unique.
 - `expires` - an integer that signifies the time of expiry of this id. In milliseconds since epoch.
 
@@ -126,14 +128,14 @@ Fields:
 Fields:
 - `id` - a unique integer id created automatically on creation.
 - `name` - the name that is displayed to users. Can be changed and is not unique
-- `owner` - the username/id of the user who owns this room
-- `members` - a list of usernames/ids of users who are in the room. Is changed every time a user joins or leaves. Should include the username/id of the owner
+- `owner` - the username of the user who owns this room
+- `members` - a list of usernames of users who are in the room. Is changed every time a user joins or leaves. Should include the username of the owner
 - `messages` - a list of `Message` structures that have been sent
 
 ###### Message
 
 Fields:
-- `sender` - the username/id of the user who sent the message
+- `sender` - the username of the user who sent the message
 - `content` - a string that is the content of the message
 - `timestamp` - milliseconds since epoch of when the message was sent (added to message list)
 
