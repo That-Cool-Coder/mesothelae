@@ -1,11 +1,12 @@
 # mesothelae
 
-A chat program using Flask backend and some sort of html frontend
+A chat program using Flask backend and some sort of HTML frontend
 
 ## Contents of README
 - [Organisation of documentation](#organisation-of-documentation)
 - [Organisation of project](#organisation-of-project)
 - [Terms used in this project](#terms-used-in-this-project)
+- [Coding conventions](#coding-conventions)
 - [Program architecture](#program-architecture)
 - [Development timeline](#development-timeline)
 - [Planned features for initial release](#planned-features-for-initial-release)
@@ -16,12 +17,12 @@ A chat program using Flask backend and some sort of html frontend
 
 ## Organisation of documentation
 
-Unlike my previous projects, which had countless documentation files, all of the documentation for developers will be kept in one file. This will hopefully keep the file system neater, avoid me spending hours pasting links to the files everywhere and probably be easier to navigate. Note that *user* documentation should be stored seperately, in a user-friendly format (i.e not markdown).
+Unlike my previous projects, which had countless documentation files, in this project all of the documentation for developers will be kept in one file. This will hopefully keep the file system neater, avoid me spending hours pasting links to the files everywhere and probably be easier to navigate. Note that *user* documentation should be stored seperately, in a user-friendly format (i.e not markdown).
 
 ## Organisation of project
 
 Instead of using subfolders to organise the sections of the program (eg backend frontend etc), which gets messy and makes deployment annoying (why should the backend have to be put in the `/var/www/html` or whatever), the different sections are going to be organised by putting them in different git branches. Currently there are two branches:
-- `main` stores the editor documentation and the license
+- `main` stores the documentation for contributors, the license, etc
 - `prototype` stores an early tester used to gain familiarity with WSGI and probe different options for architecture.
 
 Here are some possible planned branches:
@@ -38,6 +39,47 @@ Here are some possible planned branches:
 - A 'member' of a room is a user who has been invited
 - A 'page' is a webpage in the frontend that users can navigate to.
 
+## Coding conventions
+
+As this program is writen in multiple languages (Python and JS), which have differing conventions, and so there will be different conventions for different parts of the project. These conventions should be followed, however, they are not completely dictating and if one goes directly against common sense or readability then an exemption might be acceptable.
+
+There are also some global conventions that must be followed:
+- Avoid duplicated code - put any such code into a seperate function and call it
+- Give each function a clear purpose, and document it in a comment at the top
+- Avoid using variable names such as `i`, even for loop indexes. Name the loop index after what the index counts.
+- Even on one-line if-statements or loops, use braces/colon
+- Avoid using English contractions (eg `can't don't`)
+- If possible, keep function lengths below 75 lines.
+
+#### Conventions with data and API fields
+
+As the data and API will be edited and used by multiple languages, there are multiple standards that could be used. To avoid inconsistencies, only one will be used. As the data will be mainly worked on in Python, data in databases and request/response fields must follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) guidelines for naming variables (`snake_case`).
+
+#### Conventions in Python
+
+Conform to [PEP 8](https://www.python.org/dev/peps/pep-0008/)
+Use single quotes for strings. F-strings are permitted.
+
+#### Conventions in JavaScript
+
+- Use `camelCase` for variable names and function names
+- Use `PascalCase` for class names
+- Use single quotes for strings
+- Follow variable definitions, function calls and keywords like `break` with a semicolon, but don't follow if-statements or functions.
+- Do if-else statments like so:
+```
+if (x == 'a') {
+    useX(x);
+}
+else {
+    raiseError(x);
+}
+```
+
+#### Conventions in HTML
+
+- Use double quotes for strings and properties of elements
+
 ## Program architecture
 
 The program will be mainly written in Python using Flask. Both backend/API functions and serving of frontend will be done by a single Flask app.
@@ -46,8 +88,8 @@ The program will be mainly written in Python using Flask. Both backend/API funct
 
 In an effort to develop this project in a timely and organised manner, I've decided to create a development plan and timeline. These dates aren't fixed and can be moved back of forward if required.
 - 28 June - 4 July: Decide upon overall architecture. This includes deciding whether Flask will serve HTML or only act as a server, how/where to organise the data, how to organise the code, protocols of communication between server and client and what features will be present in initial deployment.
-- 5 July - 12 July: Organise the branches on GitHub and put folders etc in each. Set up testing environment, including WSGI stuff. Start writing documentation on how to set up project on a server. Create a small test server program and use it to test creating and using websockets. Create backend helper functions data loading/retrieval, for finding users, etc.
-- 13 July - 20 July: Build API functions for initial release (see [Api endpoints](4api-endpoints))
+- 5 July - 12 July: Organise the branches on GitHub and put folders etc in each. Set up testing environment, including WSGI stuff. Start writing documentation on how to set up project on a server. Create a small test server program and use it to test creating and using websockets. Possibly create backend helper functions data loading/retrieval, for finding users, etc.
+- 13 July - 20 July: Build API functions for initial release (see [Api endpoints](#api-endpoints))
 - 
 
 During this period, the documentation will also be continuously updated to reflect the latest changes and to change from 'will' to 'is'.
@@ -77,29 +119,103 @@ During this period, the documentation will also be continuously updated to refle
 
 ## Server/client communication protocols
 
-All data in both directions will be sent in JSON format.
+All data in both directions will be sent in JSON format. In addition to the main data, a `status` and a `status_code` must be returned in every response from the API
+
+#### Statuses
+
+There are three statuses:
+- `OK` signifies that everything is nominal and that the attempted procedure was completed successfully
+- `WARNING` signifies that there has been an issue, probably on behalf of the client. Eg: client tries to signin but the target user is not found or the password is incorrect
+- `ERROR` signifies that there is a major error on the server which caused it to fail the target procedure. Eg: the database couldn't be opened.
+
+#### Status Codes
+
+Currently there are no status codes, but when there are some they will be stored in a Python enum somewhere on the app branch.
 
 ## API endpoints
 
-As the program isn't written yet, these are the planned endpoints for the initial release. The url of the endpoints will be inside `/api/`. The fields in each In addition to the values stated under the subheadings, each of the endpoints also return two other a `status` and a `statuscode`, as stated in [Server/client communication protocols](#serverclient-communication-protocols).
+As the program isn't written yet, these are the planned endpoints for the initial release. The url of the endpoints will be inside `/api/`. The fields in each In addition to the values stated under the subheadings, each of the endpoints also return two other items: a `status` and a `status_code`, as stated in [Server/client communication protocols](#serverclient-communication-protocols).
 
 #### api/signup
+
 Create a new `User` object and save it in the database.
 
 Accepts:
 - `username` - a string that will be the `username` value of the `User` data structure
-- `displayName`- a string that will be the `display_name` value of the `User`.
-- `password`
+- `display_name`- a string that will be the `display_name` value of the `User`
+- `password` - a string that will be hashed and stored as the `password` field of the `User`
 
-Returns nothing.
+Note that there is no confirm password field - the confirmation must be done on the client end.
+
+Returns no data.
 
 #### api/signin
 
+Generate a new `SessionId` data structure which can be used to perform actions later
+
+Accepts:
+- `username` - the username of the target account
+- `password` - the password of the target account
+
+Returns:
+- `session_id` - a string which matches the `value` field of the generated `SessionId` object
+
 #### api/signout
+
+Invalidate the `SessionId` so that that client is logged out
+
+Accepts:
+- `session_id` - a string matching the `value` field of the `SessionId` object to delete
+
+Returns no data.
+
+#### api/setusername
+
+Set the username of the user that the `SessionId` belongs to
+
+Accepts:
+- `session_id` - a valid string matching a `SesssionId` data structure. This is also used to lookup the user to modify
+- `new_username` - what to set the `username` to.
+
+Returns no data.
+
+#### api/setpassword
+
+Set the password of the user that the `SessionId` belongs to
+
+Accepts:
+- `session_id` - a valid string matching a `SesssionId` data structure. This is also used to lookup the user to modify.
+- `new_password` - what to set the `password` to.
+
+Returns no data.
+
+#### api/deleteaccount
+
+Delete the account of a user. Not finished planning yet.
+
+#### api/createroom
+
+Create a new room. Not finished planning yet.
+
+#### api/setroomname
+
+Rename a room. Not finished planning yet.
+
+#### api/deleteroom
+
+Delete a room. Not finished planning yet.
+
+#### api/addroommember
+
+Add a new member to a room. Not finished planning yet.
+
+#### api/sendmessage
+
+Send a message in a room. Not finished planning yet.
 
 ## Data storage
 
-The data will be stored in json format, using a custom module for loading, saving and error handling. The data will be broken up into a number of files.
+The data will be stored in JSON format, using a custom module for loading, saving and error handling. The data will be broken up into a number of files.
 
 #### Data files
 
@@ -138,7 +254,3 @@ Fields:
 - `sender` - the username of the user who sent the message
 - `content` - a string that is the content of the message
 - `timestamp` - milliseconds since epoch of when the message was sent (added to message list)
-
-## Code architecture
-
-I haven't started writing code yet but I just wanted to prepare a heading.
