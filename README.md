@@ -23,11 +23,11 @@ Unlike my previous projects, which had countless documentation files, in this pr
 ## Organisation of project
 
 Instead of using subfolders to organise the sections of the program (eg backend frontend etc), which gets messy and makes deployment annoying (why should the backend have to be put in the `/var/www/html` or whatever), the different sections are going to be organised by putting them in different git branches. Currently there are two branches:
-- `main` stores the documentation for contributors, the license, etc
+- `main` stores the documentation for contributors, the license, etc.
 - `prototype` stores an early tester used to gain familiarity with WSGI and probe different options for architecture.
+- `app` is the most important branch and contains the actual Flask server program.
 
 Here are some possible planned branches:
-- `app` will be the main branch of the repo and will store the flask server
 - `python-frontend` will store a possible downloadable frontend written in python
 
 ## Terms used in this project
