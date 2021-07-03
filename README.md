@@ -11,6 +11,7 @@ A chat program using Flask backend and some sort of HTML frontend
 - [Development timeline](#development-timeline)
 - [Planned features for initial release](#planned-features-for-initial-release)
 - [Planned future features](#planned-future-features)
+- [Deployment instructions](#deployment-instructions)
 - [Server/client communication protocols](#serverclient-communication-protocols)
 - [API endpoints](#api-endpoints)
 - [Data storage](#data-storage)
@@ -89,8 +90,9 @@ The program will be mainly written in Python using Flask. Both backend/API funct
 In an effort to develop this project in a timely and organised manner, I've decided to create a development plan and timeline. These dates aren't fixed and can be moved back of forward if required.
 - 28 June - 4 July: Decide upon overall architecture. This includes deciding whether Flask will serve HTML or only act as a server, how/where to organise the data, how to organise the code, protocols of communication between server and client and what features will be present in initial deployment.
 - 5 July - 12 July: Organise the branches on GitHub and put folders etc in each. Set up testing environment, including WSGI stuff. Start writing documentation on how to set up project on a server. Create a small test server program and use it to test creating and using websockets. Possibly create backend helper functions data loading/retrieval, for finding users, etc.
-- 13 July - 20 July: Build API functions for initial release (see [Api endpoints](#api-endpoints))
-- 
+- 13 July - 20 July: Build API functions for initial release (see [Api endpoints](#api-endpoints)). If time is available, construct basic UI for testing API.
+- 21 July - 28 July: Create final UI and write frontend JavaScript code.
+Planned initial release by the end of July.
 
 During this period, the documentation will also be continuously updated to reflect the latest changes and to change from 'will' to 'is'.
 
@@ -116,6 +118,14 @@ During this period, the documentation will also be continuously updated to refle
 - Users can select light-dark theme
 - Messages are now sent in markdown format, allowing formatting and code blocks
 - Users can select some basic preferences like shortcut to send
+
+## Deployment instructions
+
+As there is no program to deploy, I can't write instructions yet. It will involve these things however:
+- install python packages
+- install `mod-wsgi`
+- setup folder for databases
+- git clone project
 
 ## Server/client communication protocols
 
