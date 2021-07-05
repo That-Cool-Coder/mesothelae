@@ -2,7 +2,6 @@ import random
 import time
 import itertools
 
-import asyncio
 from flask import *
 from mesothelae.main import app
 
@@ -20,10 +19,12 @@ def test_templates():
 
 @app.route('/tests/sse/', methods=['GET'])
 def test_sse():
-    if request.headers.get('accept') == 'text/event-stream':
-        def events():
-            for i, c in enumerate(itertools.cycle('\|/-')):
-                yield "data: %s %d\n\n" % (c, i)
-                time.sleep(.1)  # an artificial delay
-        return Response(events(), content_type='text/event-stream')
-    return redirect(url_for('static', filename='/tests/sse.html'))
+    return app.send_static_file('tests/sse.html')
+
+@app.route('/tests/sse/source/')
+def test_sse_source():
+    def events():
+        for i, c in enumerate(itertools.cycle('\|/-')):
+            yield "data: %s %d\n\n" % (c, i)
+            time.sleep(.1)  # an artificial delay
+    return Response(events(), content_type='text/event-stream')
