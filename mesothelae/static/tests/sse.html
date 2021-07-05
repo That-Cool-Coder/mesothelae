@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SSE Test</title>
+    </head>
+
+    <body>
+        <h1>SSE Test</h1>
+    </body>
+
+    <script type="text/javascript" charset="utf-8">
+            var source = new EventSource('/mesothelae/tests/sse/');
+            source.onmessage = function(e) {
+                console.log(e.data);
+            }
+    </script>
+</html>

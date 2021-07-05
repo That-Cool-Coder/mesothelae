@@ -11,11 +11,11 @@ def error_401(e):
 
 @app.errorhandler(403)
 def error_403(e):
-    return app.send_static_file('403.html'), 402
+    return app.send_static_file('403.html'), 403
 
 @app.errorhandler(404)
 def error_404(e):
-    return app.send_static_file('404.html'), 403
+    return app.send_static_file('404.html'), 404
 
 @app.errorhandler(418)
 def error_418(e):
