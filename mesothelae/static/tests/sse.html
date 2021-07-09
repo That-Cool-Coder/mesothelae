@@ -10,10 +10,28 @@
 
     <p id="output">Connecting...</p>
 
+    <button onclick="sendMessage()">Send message</button>
+
     <script type="text/javascript" charset="utf-8">
-        var source = new EventSource('/mesothelae/tests/sse/source/');
+        var source = new EventSource('/mesothelae/tests/sse/messagenotify/');
         source.onmessage = function(e) {
             document.getElementById('output').innerText = e.data;
+        }
+
+        function sendMessage() {
+            var content = prompt('Enter message content');
+            fetch('/mesothelae/tests/sse/sendmessage',{
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify({data : content})
+            })
         }
     </script>
 </html>
